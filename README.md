@@ -13,8 +13,8 @@ Step 4 (4_MoveFilesRandomly.py)- This file is optional; this is used to randomly
 
 Step 5 (5_Apply_cnn-metrics.py)- Use this file to run CNN algorithm on the images generated in the previous step; replace the path of reflect the actual paths.
 
-Input Files: As we use three types of Omic data, Initially the data from cbioPortal is process and formatted into 3 files. They are gene_expression.csv, cna_norm.csv and dna_methylation.csv.
-After applying Step 1 of script it generates a merged file with all three omics of the shortlisted genes. This sample file for 20 gnees is attached which is called Mergefile_top20.csv. This file is used as input for step 2 and so on.
+Input Files: This algorithm considers only 3 types of Omic data, Initially the data from cbioPortal is process and formatted into 3 files. These files are gene_expression.csv, cna_norm.csv and dna_methylation.csv.
+After applying Step 1 a merged file with all three omics of the shortlisted genes is generated. This sample file for 20 genes is attached which is called Mergefile_top20.csv. This file is used as input for step 2 and so on.
 
 Note: To include more than three omic data the code needs modification. 
 The pre-processing file is created to process the data of formats mentioned in gene_expression.csv, cna_norm.csv and dna_methylation.csv. If the format is changed then the pre-processing file need to be adjusted accordingly.
