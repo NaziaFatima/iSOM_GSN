@@ -24,10 +24,13 @@ SAMPLE RUN INSTRUCTIONS
 ***********************
 To run code for sample data follow below steps :
 
-1- Create a new directory in you local system for Example : Test 
-2- Place Mergefile_top20.csv and MoCSOM.py files in that folder 
-3- Make sure python3 is installed and directory classpaths are set accordingly .
-4- Run MoCSOM.py from that folder.
+1- Create a new directory in you local system for example : Test 
 
-On successfull run the script should create 2 folders under your test directory named Training and Test and the console should show the epochs data. Capture.png shows output of the ideal run. 
+2- Place Mergefile_top20.csv and MoCSOM.py files in that folder 
+
+3- Make sure python3 is installed and directory classpaths are set accordingly
+
+4- Run MoCSOM.py from that folder
+
+On successfull run the script should create 2 folders under your test directory named Training and Test and the console should show the epochs progressed. Capture.png shows output of the ideal run. 
 
