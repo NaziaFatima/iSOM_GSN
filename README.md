@@ -19,3 +19,15 @@ After applying Step 1 a merged file with all three omics of the shortlisted gene
 Note: To include more than three omic data the code needs modification. 
 The pre-processing file is created to process the data of formats mentioned in gene_expression.csv, cna_norm.csv and dna_methylation.csv. If the format is changed then the pre-processing file need to be adjusted accordingly.
 
+***********************
+SAMPLE RUN INSTRUCTIONS
+***********************
+To run code for sample data follow below steps :
+
+1- Create a new directory in you local system for Example : Test 
+2- Place Mergefile_top20.csv and MoCSOM.py files in that folder 
+3- Make sure python3 is installed and directory classpaths are set accordingly .
+4- Run MoCSOM.py from that folder.
+
+On successfull run the script should create 2 folders under your test directory named Training and Test and the console should show the epochs data. Capture.png shows output of the ideal run. 
+
