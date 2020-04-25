@@ -27,7 +27,9 @@ count = 0
 
 def createTemplate():
     import SimpSOM as sps
-    path = "C:\\PR_Proj_Thesis\\PRAD\\SOM_template\\GE_withstage_20.csv"
+    path = pathlib.Path().absolute()
+    path = str(path) + '\\GE_withstage_20.csv'
+    #path = "C:\\PR_Proj_Thesis\\PRAD\\SOM_template\\GE_withstage_20.csv"
     # Read file 
     df = pd.read_csv(path)
     # Fill na 
