@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sat Apr 25 02:15:56 2020
+
+@author: Fatima
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Thu May  9 23:02:47 2019
 
 @author: Fatima
@@ -15,6 +22,7 @@ import networkx as nx
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import os,random,shutil
+import pathlib
 count = 0
 
 def createTemplate():
@@ -37,13 +45,14 @@ def createTemplate():
     
     ht = 10
     wd = 10
-    no_of_epocs =1500
+    no_of_epocs =1000
     
     net = sps.somNet(ht,wd, raw_data, PBC=False)
     net.colorEx=False
     
     Learning_rate = 0.05
     net.PCI = True #The weights will be initialised with PCA.
+    """ Switch to activate periodic boundary conditions. """
     net.PBC = True
     net.train(Learning_rate,no_of_epocs)   
     col_num = raw_data.shape[0]
@@ -65,14 +74,15 @@ def createTemplate():
     nx.draw_networkx_labels(G,pos,new_lbl_dict,font_size=10)
     
     plt.axis('on')
-    plt.savefig(str(count)+'_Template1500.png')#, bbox_inches='tight', dpi=72)
+    plt.savefig(str(count)+'_Template.png')#, bbox_inches='tight', dpi=72)
 #    plt.show()
     return pos;
 
-def create_RGB_Images(pos,classlbl,batch):
+def create_RGB_Images(pos,classlbl):
     gene_list_top14 = ['SPOP', 'FOXA1', 'CTNNB1', 'CLPTM1L', 'DPYSL2', 'NEIL1', 'PITPNM2', 'ATM', 'EMG1', 'ETV3', 'BRAF', 'NKX3-1', 'ZMYM3', 'SALL1'] 
     gene_list = gene_list_top14
-    pathGE = "C:\\PR_Proj_Thesis\\NEW_SOM_Approach\\PRAD\\Mergefile_top20_v5.csv"  
+    path = pathlib.Path().absolute()
+    pathGE = str(path) + '\\Mergefile_top20.csv'
     # Read file 
     df = pd.read_csv(pathGE)
     df = df.loc[df['TUMOR_STAGE'] == classlbl]
@@ -84,6 +94,7 @@ def create_RGB_Images(pos,classlbl,batch):
     new_lbl_dict = dict(enumerate(new_lbl))
     # loop through all rows and get RGB values for each patient 
     row_count = df.shape[0]
+    
     df.reset_index(inplace=True)
     for i in range(row_count): #loop through all rows 
         nodecolor =[] 
@@ -100,6 +111,8 @@ def create_RGB_Images(pos,classlbl,batch):
             B =  round(df[b_prefix][i],5) if (b_prefix in df.columns) else 0.0
 
             nodecolor.append([R,G,B])
+            
+#        print("node_color size = " ,len(nodecolor))
         G=nx.chvatal_graph()
         try:
             nx.draw_networkx_nodes(G,pos,
@@ -113,16 +126,13 @@ def create_RGB_Images(pos,classlbl,batch):
             
             plt.axis('on')
             filename = str(i)+'_Template.png'
-            path = "./"+str(batch)+"/" +str(classlbl)
+            path = "./training/" +str(classlbl)
             plt.savefig(os.path.join(path,filename))
-        except Exception as err:
-            print("row = ",i," err = " , err)
-#            print("err = " , err)
+        except:
+            print("row = ",i," node_color = ",nodecolor)
 #        print(("\r Preparing Images... "+str(int(i*100.0/row_count))+"%" ), end=' ')
-    print("\r Done Preparing Images ....for :",batch,classlbl)
-
+    print("\r Done Preparing Training Images ....for :",classlbl)
     return;
-
 def Movefiles(source,destination,num):
     # get list of files from Source(training) folder 
     list_of_file = [os.path.abspath(os.path.join(source,x)) for x in os.listdir(source)]#os.path.abspath(x)
@@ -135,7 +145,9 @@ def Movefiles(source,destination,num):
     
 def randomly_distribute_files(num):
 #    num = 30
-    path = 'C:\\PR_Proj_Thesis\\NEW_SOM_Approach\\PRAD'
+    import pathlib
+    path = pathlib.Path().absolute()
+    path = str(path)
     src_2A = path + '\\training\\34'
     dst_2A =  path + '\\test\\34'
 
@@ -170,12 +182,12 @@ def apply_CNN():
     classifier.add(Convolution2D(32, 3, 3, input_shape = (64, 64, 3), activation = 'relu'))
     classifier.add(BatchNormalization())
     # Step 2 - Pooling
-    classifier.add(MaxPooling2D(pool_size = (4, 4),strides = (2,2)))
+    classifier.add(MaxPooling2D(pool_size = (2, 2),strides = (2,2)))
     classifier.add(Dropout(0.2))
     # Adding a second convolutional layer
     classifier.add(Convolution2D(32, 3, 3, activation = 'relu'))
     classifier.add(BatchNormalization())
-    classifier.add(MaxPooling2D(pool_size = (2, 2),strides = (1,1)))
+    classifier.add(MaxPooling2D(pool_size = (2, 2),strides = (2,2)))
     classifier.add(Dropout(0.5))
     classifier.add(Flatten())
     # Step 4 - Full connection
@@ -198,13 +210,15 @@ def apply_CNN():
                                                      target_size = (64, 64),
                                                      batch_size = 32,
                                                      class_mode = 'categorical',
-                                                     shuffle =False)#,save_to_dir = 'generatedimages')#,         seed =seed)#,save_to_dir = 'generatedimages') #categorical,binary
+                                                     shuffle =True,
+                                                     seed =seed)#,save_to_dir = 'generatedimages') #categorical,binary
     
     test_set = test_datagen.flow_from_directory('test',
                                                 target_size = (64, 64),
                                                 batch_size =32,
                                                 class_mode = 'categorical',
-                                                shuffle =False)#,              seed =seed)#categorical,binary
+                                                shuffle =True,
+                                                seed =seed)#categorical,binary
     with tf.Session() as s:
         s.run(tf.global_variables_initializer())
         classifier.fit_generator(training_set,
@@ -212,12 +226,14 @@ def apply_CNN():
                              nb_epoch =35,
                              validation_data = test_set,
                              nb_val_samples = 90,
-                             shuffle =False,
+                             shuffle =True,
                              verbose = 2)
     return;
 
 def delete_recreate_dirStructure():
-    path = 'C:\\PR_Proj_Thesis\\NEW_SOM_Approach\\PRAD'
+    import pathlib
+    path = pathlib.Path().absolute()
+    path = str(path)
     src_C1 = path + '\\training\\34'
     dst_C1 =  path + '\\test\\34'
 
@@ -252,24 +268,12 @@ def delete_recreate_dirStructure():
 
 
 if __name__ == "__main__":  
-
-#    delete_recreate_dirStructure()
-#    pos = createTemplate()
-    pos =  [[5.5, 4.330127018922194], [5, 0.0], [0.5, 4.330127018922194], [2.5, 7.794228634059948], [8.5, 4.330127018922194], [8, 6.9282032302755105], [9, 6.9282032302755105], [9, 3.4641016151377553], [6.5, 7.794228634059948], [9.5, 7.794228634059948], [9.5, 7.794228634059948], [0, 0.0], [9, 1.7320508075688776], [9.5, 7.794228634059948]]
-#
-##    pos= [[4.5, 4.330127018922194], [9.5, 4.330127018922194], [9.5, 6.062177826491071], [6.5, 7.794228634059948], [0, 3.4641016151377553], [1.5, 7.794228634059948], [0, 6.9282032302755105], [0, 1.7320508075688776], [3, 6.9282032302755105], [0, 6.9282032302755105], [0.5, 7.794228634059948], [9, 0.0], [2.5, 2.598076211353316], [0, 6.9282032302755105]]
-#    
-##    print("POS = " , pos)
-    create_RGB_Images(pos,34,'training')
-    create_RGB_Images(pos,43,'training')
-    create_RGB_Images(pos,45,'training')
-    
-    create_RGB_Images(pos,34,'test')
-    create_RGB_Images(pos,43,'test')
-    create_RGB_Images(pos,45,'test')
-#    randomly_distribute_files(30)
+    delete_recreate_dirStructure()
+    pos= [[4.5, 4.330127018922194], [9.5, 4.330127018922194], [9.5, 6.062177826491071], [6.5, 7.794228634059948], [0, 3.4641016151377553], [1.5, 7.794228634059948], [0, 6.9282032302755105], [0, 1.7320508075688776], [3, 6.9282032302755105], [0, 6.9282032302755105], [0.5, 7.794228634059948], [9, 0.0], [2.5, 2.598076211353316], [0, 6.9282032302755105]]
+ #   print("POS = " , pos)
+    create_RGB_Images(pos,34)
+    create_RGB_Images(pos,43)
+    create_RGB_Images(pos,45)
+    randomly_distribute_files(30)
     apply_CNN()
-#    delete_recreate_dirStructure()
-#    count=count+1
-#    print("End of loop # ", i)
     print("*****************Done!!*****************")
