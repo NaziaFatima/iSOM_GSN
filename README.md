@@ -34,3 +34,4 @@ To run code for sample data follow below steps :
 
 On successfull run the script should create 2 folders under your test directory named Training and Test and the console should show the epochs progressed. Capture.png shows output of the ideal run. 
 
+PS: This code works only on Python3.6 as Keras library is not compatible with 3.7+
